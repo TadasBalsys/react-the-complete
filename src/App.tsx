@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 
 import Person from './components/Person/person';
 import './App.css';
@@ -14,16 +15,30 @@ const personArr: PersonData[] = [
   { id: 9, name: 'Aina', age: 30 },
 ];
 
-let showList: Boolean = false;
+const StyledButton = styled('button')`
+  background-color: ${(props) => (props.color === "true" ? 'black' : 'red')};
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  color: white;
+  width: 15rem;
+  &:hover {
+    background-color: lightgreen;
+    cursor: pointer;
+  }
+
+  @media (max-width: 50rem) {
+    width: 8rem;
+  }
+`;
 
 const App = (): JSX.Element => {
   const [persons, setPersons] = useState<PersonData[]>(personArr);
-  const [isListVisible, setIsListVisible] = useState<Boolean>(showList);
+  const [isListVisible, setIsListVisible] = useState<Boolean>(false);
+  const [personsList, setPersonsList] = useState<JSX.Element[] | null>(null);
 
   const deletePersonHandler = (index: number): void => {
     const newPersonsArr: PersonData[] = [...persons];
     newPersonsArr.splice(index, 1);
-    console.log(newPersonsArr);
     setPersons(newPersonsArr);
   };
 
@@ -36,26 +51,30 @@ const App = (): JSX.Element => {
     setPersons(newPersonsArr);
   };
 
-  let personsList: JSX.Element[] | null = null;
-
-  if (isListVisible) {
-    personsList = persons.map((person: PersonData, index: number) => (
-      <Person
-        key={person.id}
-        index={index}
-        {...person}
-        deletePerson={deletePersonHandler}
-        changeName={nameChangedHandler}
-      />
-    ));
-  }
+  useEffect(() => {
+    if (isListVisible) {
+      setPersonsList(
+        persons.map((person: PersonData, index: number) => (
+          <Person
+            key={person.id}
+            index={index}
+            {...person}
+            deletePerson={deletePersonHandler}
+            changeName={nameChangedHandler}
+          />
+        ))
+      );
+    } else {
+      setPersonsList(null);
+    }
+  }, [isListVisible, persons]);
 
   return (
     <div className='App'>
       <h1>Hello World</h1>
-      <button onClick={() => setIsListVisible(!isListVisible)}>
+      <StyledButton color={isListVisible.toString()} onClick={() => setIsListVisible(!isListVisible)}>
         Show People
-      </button>
+      </StyledButton>
       {personsList}
     </div>
   );
