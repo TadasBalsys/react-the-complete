@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import Person from './components/Person/person';
+import ErrorBoundary from './components/ErrorBoundary/error-boundary';
 import './App.css';
 
 interface PersonData {
@@ -16,7 +17,7 @@ const personArr: PersonData[] = [
 ];
 
 const StyledButton = styled('button')`
-  background-color: ${(props) => (props.color === "true" ? 'black' : 'red')};
+  background-color: ${(props) => (props.color === 'true' ? 'black' : 'red')};
   margin-bottom: 1rem;
   padding: 0.5rem 1rem;
   color: white;
@@ -42,7 +43,7 @@ const App = (): JSX.Element => {
     setPersons(newPersonsArr);
   };
 
-  const nameChangedHandler = (value: string, id: number) => {
+  const nameChangedHandler = (value: string, id: number): void => {
     const personIndex: number = persons.findIndex((p) => p.id === id);
     const person: PersonData = { ...persons[personIndex] };
     const newPersonsArr: PersonData[] = [...persons];
@@ -54,14 +55,15 @@ const App = (): JSX.Element => {
   useEffect(() => {
     if (isListVisible) {
       setPersonsList(
-        persons.map((person: PersonData, index: number) => (
-          <Person
-            key={person.id}
-            index={index}
-            {...person}
-            deletePerson={deletePersonHandler}
-            changeName={nameChangedHandler}
-          />
+        persons.map((person: PersonData, index: number): JSX.Element => (
+          <ErrorBoundary key={person.id}>
+            <Person
+              index={index}
+              {...person}
+              deletePerson={deletePersonHandler}
+              changeName={nameChangedHandler}
+            />
+          </ErrorBoundary> 
         ))
       );
     } else {
@@ -72,7 +74,10 @@ const App = (): JSX.Element => {
   return (
     <div className='App'>
       <h1>Hello World</h1>
-      <StyledButton color={isListVisible.toString()} onClick={() => setIsListVisible(!isListVisible)}>
+      <StyledButton
+        color={isListVisible.toString()}
+        onClick={() => setIsListVisible(!isListVisible)}
+      >
         Show People
       </StyledButton>
       {personsList}
